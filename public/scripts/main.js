@@ -1,36 +1,48 @@
 'use strict';
 
-// JS
-var missFortune = {};
+(function () {
 
-missFortune.MAX_QUOTES = 50;
+    // Set up variables 
+    var MIN = 1;
+    var MAX = 4;
+    var quoteObject = {
+        quote: '',
+        details: '',
+        source: ''
+    };
 
-missFortune.randoNum;
-missFortune.quoteObject = {
-    quote: '',
-    details: '',
-    source: ''
-};
+    // Randomize a number onClick and get random quote
+    $('#fortuneBtn').click(function (event) {
 
-// Randomize a number onClick
-$('#fortuneButton').on('click', function (e) {
+        // Default index will be 10
+        var randoNum = 10;
 
-    missFortune.randoNum = Math.floor(Math.random() * missFortune.MAX_QUOTES);
+        randoNum = Math.floor(Math.random() * (MAX - MIN + 1)) + MIN;
 
-    console.log('Random Num: ' + missFortune.randoNum);
-});
+        console.log('Random Num: ' + randoNum);
 
-// Pull object from db based on random number
+        // DB Call
+        getRandomQuote(randoNum);
+    });
 
+    // Database service to pull random quote
+    var getRandomQuote = function getRandomQuote(randomNum) {
 
-// Store object in new js object
-// Print items to page
+        var dbRef = firebase.database();
+        var missFortuneRef = dbRef.ref('quotes');
 
+        var key = 'q' + randomNum;
 
-// missFortune.init = () => {
+        // Get object with specified key
+        missFortuneRef.orderByKey().equalTo(key).on('child_added', function (snapshot) {
 
-// }
+            var snap = snapshot.val();
+            quoteObject.quote = snap.quote;
+            quoteObject.details = snap.details;
+            quoteObject.source = snap.source;
 
-// $(function() {
-//     missFortune.init();
-// });
+            // Print to page
+            $('#quote').html(quoteObject.quote);
+        });
+    };
+})();
