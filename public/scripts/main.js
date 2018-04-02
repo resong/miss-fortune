@@ -2,58 +2,47 @@
 
 (function () {
 
-    'use strict';
-
     // Set up variables 
-
-    var MAX_QUOTES = 4;
+    var MIN = 1;
+    var MAX = 4;
     var quoteObject = {
         quote: '',
         details: '',
         source: ''
     };
-    var randoNum = 10; // default index will be 10
-    // let database = firebase.database(); // reference to database service
 
-    // Randomize a number onClick 
-    $('#fortuneBtn').on('click', function (e) {
-        randoNum = Math.floor(Math.random() * MAX_QUOTES);
+    // Randomize a number onClick and get random quote
+    $('#fortuneBtn').click(function (event) {
+
+        // Default index will be 10
+        var randoNum = 10;
+
+        randoNum = Math.floor(Math.random() * (MAX - MIN + 1)) + MIN;
+
         console.log('Random Num: ' + randoNum);
+
+        // DB Call
+        getRandomQuote(randoNum);
     });
+
+    // Database service to pull random quote
+    var getRandomQuote = function getRandomQuote(randomNum) {
+
+        var dbRef = firebase.database();
+        var missFortuneRef = dbRef.ref('quotes');
+
+        var key = 'q' + randomNum;
+
+        // Get object with specified key
+        missFortuneRef.orderByKey().equalTo(key).on('child_added', function (snapshot) {
+
+            var snap = snapshot.val();
+            quoteObject.quote = snap.quote;
+            quoteObject.details = snap.details;
+            quoteObject.source = snap.source;
+
+            // Print to page
+            $('#quote').html(quoteObject.quote);
+        });
+    };
 })();
-
-// // JS
-// let missFortune = {};
-
-// missFortune.MAX_QUOTES = 50;
-
-// missFortune.randoNum;
-// missFortune.quoteObject = {
-//     quote: '',
-//     details: '',
-//     source: ''
-// };
-
-// // Randomize a number onClick
-// $('#fortuneButton').on('click', (e) => {
-
-//     missFortune.randoNum = Math.floor(Math.random() * missFortune.MAX_QUOTES);
-
-//     console.log('Random Num: ' + missFortune.randoNum);
-
-// });
-
-// Pull object from db based on random number
-
-
-// Store object in new js object
-// Print items to page
-
-
-// missFortune.init = () => {
-
-// }
-
-// $(function() {
-//     missFortune.init();
-// });

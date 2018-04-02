@@ -1,59 +1,47 @@
 (function() {
 
-    'use strict';
-
     // Set up variables 
-    const MAX_QUOTES = 4;
+    const MIN = 1;
+    const MAX = 4;
     const quoteObject = {
         quote: '',
         details: '',
         source: ''
     };
-    let randoNum = 10;                  // default index will be 10
-    // let database = firebase.database(); // reference to database service
-
-    // Randomize a number onClick 
-    $('#fortuneBtn').on('click', (e) => {
-        randoNum = Math.floor(Math.random() * MAX_QUOTES);
+    
+    // Randomize a number onClick and get random quote
+    $('#fortuneBtn').click(event => {
+        
+        // Default index will be 10
+        let randoNum = 10;                  
+        
+        randoNum = Math.floor(Math.random() * (MAX - MIN + 1)) + MIN;
+        
         console.log('Random Num: ' + randoNum);
+
+        // DB Call
+        getRandomQuote(randoNum);
     });
+    
+    // Database service to pull random quote
+    let getRandomQuote = (randomNum) => {
+        
+        let dbRef = firebase.database(); 
+        let missFortuneRef = dbRef.ref('quotes');
+
+        let key = 'q' + randomNum;
+
+        // Get object with specified key
+        missFortuneRef.orderByKey().equalTo(key).on('child_added', (snapshot) => {
+                
+            let snap = snapshot.val();
+            quoteObject.quote = snap.quote;
+            quoteObject.details = snap.details;
+            quoteObject.source = snap.source;
+
+            // Print to page
+            $('#quote').html(quoteObject.quote);
+        });
+    };
 
 })();
-
-
-// // JS
-// let missFortune = {};
-
-// missFortune.MAX_QUOTES = 50;
-
-// missFortune.randoNum;
-// missFortune.quoteObject = {
-//     quote: '',
-//     details: '',
-//     source: ''
-// };
-
-// // Randomize a number onClick
-// $('#fortuneButton').on('click', (e) => {
-
-//     missFortune.randoNum = Math.floor(Math.random() * missFortune.MAX_QUOTES);
-
-//     console.log('Random Num: ' + missFortune.randoNum);
-
-// });
-
-// Pull object from db based on random number
-
-
-
-// Store object in new js object
-// Print items to page
-
-
-// missFortune.init = () => {
-    
-// }
-
-// $(function() {
-//     missFortune.init();
-// });
